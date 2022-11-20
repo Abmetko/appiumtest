@@ -15,8 +15,7 @@ public class DriverFactory {
     private static final String APP_NAME = "app-debug.apk";
     private static final String APP_FILE_ABSOLUTE_PATH = getAppFilePath();
     private static final String APPIUM_SERVER_URL = "127.0.0.1";
-    private static final String APPIUM_SERVER_PATH = "/wd/hub/";
-    private static final String APPIUM_SERVER_PORT = "4723";
+    private static final int APPIUM_SERVER_PORT = 4723;
 
     private static AndroidDriver driver = null;
     private static AppiumDriverLocalService service = null;
@@ -43,18 +42,17 @@ public class DriverFactory {
                 .eventTimings();
 
         try {
-            driver = new AndroidDriver(new URL("http://" + APPIUM_SERVER_URL + ":" + APPIUM_SERVER_PORT + APPIUM_SERVER_PATH), options);
+            driver = new AndroidDriver(new URL("http://" + APPIUM_SERVER_URL + ":" + APPIUM_SERVER_PORT), options);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
     }
 
     public static void runAppiumServer() {
-        String appiumNodeModulePath = "/Applications/Appium.app/Contents/Resources/app/node_modules/appium/build/lib/main.js";
-        service = AppiumDriverLocalService.buildService(new AppiumServiceBuilder()
-                .withAppiumJS(new File(appiumNodeModulePath))
+        service = new AppiumServiceBuilder()
                 .withIPAddress(APPIUM_SERVER_URL)
-                .withArgument(() -> "--base-path", APPIUM_SERVER_PATH));
+                .usingPort(APPIUM_SERVER_PORT)
+                .build();
         service.start();
     }
 
@@ -66,8 +64,10 @@ public class DriverFactory {
     }
 
     public static void killDriver() {
-        driver.quit();
-        driver = null;
+        if (driver != null) {
+            driver.quit();
+            driver = null;
+        }
     }
 
     private static String getAppFilePath() {
