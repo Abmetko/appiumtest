@@ -16,6 +16,7 @@ public abstract class BaseTest {
 
     @AfterAll
     void tearDown() {
+        DriverFactory.removeApp();
         DriverFactory.killDriver();
         DriverFactory.stopAppiumServer();
     }
